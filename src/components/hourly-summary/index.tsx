@@ -10,6 +10,8 @@ import "./card.style.scss";
 const HourlySummary = ({ forecast }: any) => {
   const ref = useRef<any>(null);
 
+  const elementRef = useRef<any>(null);
+
   const [showActionButtons, setShowActionButtons] = useState<{
     next: boolean;
     previous: boolean;
@@ -39,6 +41,11 @@ const HourlySummary = ({ forecast }: any) => {
 
   useEffect(() => {
     window.addEventListener("scroll", toggleButtonVisibility, true);
+    elementRef.current &&
+      elementRef.current.scrollIntoView({
+        behavior: "smooth",
+        inline: "center",
+      });
 
     return () => {
       window.removeEventListener("scroll", toggleButtonVisibility);
@@ -64,6 +71,7 @@ const HourlySummary = ({ forecast }: any) => {
               temp={data?.temp_c}
               icon={data?.condition?.icon}
               time={data?.time}
+              elementRef={elementRef}
             />
           ))}
         </div>
