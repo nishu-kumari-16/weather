@@ -3,7 +3,7 @@ import "../hourly-summary/card.style.scss";
 
 const WeatherCard = ({ titleIcon, title, value, subtext, image }: any) => {
   return (
-    <div className="outer-container rounded-lg min-w-[12rem] flex-1 p-4 w-fit overflow-hidden flex flex-col min-h-[10.25rem] gap-2 max-w-[20rem]">
+    <div className="outer-container rounded-lg min-w-[12rem] flex-1 p-4 w-fit overflow-hidden flex flex-col min-h-[10.25rem] gap-2 ">
       <div className="flex gap-2 items-center">
         <FontAwesomeIcon icon={titleIcon} className="w-auto" />
         <div className="text-md  text-[#EBEBF599] font-semibold">{title}</div>
