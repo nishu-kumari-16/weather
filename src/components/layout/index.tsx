@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useCallback, useEffect, useState } from "react";
 import { getCurrentDayData } from "../../services/forecast.service";
 import WeatherSummary from "../weather-summary";
@@ -28,6 +29,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 const Layout = () => {
   const [currentDayData, setCurrentDayData] = useState<any>();
   const [loading, setLoading] = useState<boolean>(true);
+  const [weatherCardData, setWeatherCardData] = useState<any>();
 
   const [searchQuery, setSearchQuery] = useState<string>("");
 
@@ -51,10 +53,6 @@ const Layout = () => {
     getDayData(searchQuery);
   });
 
-  useEffect(() => {
-    handleSearch();
-  }, [searchQuery]);
-
   const success = useCallback((position: any) => {
     const latitude = position.coords.latitude;
     const longitude = position.coords.longitude;
@@ -64,6 +62,75 @@ const Layout = () => {
   const error = () => {
     console.log("Unable to retrieve your location");
   };
+
+  const updateWeatherCardData = () => {
+    const data = [
+      {
+        title: "SUNRISE",
+        titleIcon: faSun,
+        value: currentDayData?.forecast?.forecastday?.[0]?.astro?.sunrise,
+        image: Sunrise,
+        subtext: `Sunset: ${currentDayData?.forecast?.forecastday?.[0]?.astro?.sunset}`,
+      },
+      {
+        title: "FEELS LIKE",
+        titleIcon: { faTemperature2 },
+        value: <div>{currentDayData?.current.feelslike_c}&deg;C</div>,
+        image: Temperature,
+      },
+      {
+        title: "WIND",
+        titleIcon: faWind,
+        value: `${currentDayData?.forecast?.forecastday?.[0]?.day?.maxwind_kph} km/h`,
+        image: Wind,
+      },
+      {
+        title: "RAINFALL",
+        titleIcon: faCloudRain,
+        value: `${currentDayData?.forecast?.forecastday?.[0]?.day?.daily_chance_of_rain}%`,
+        image: RainFall,
+      },
+      {
+        title: "SNOW",
+        titleIcon: faSnowflake,
+        value: `${currentDayData?.forecast?.forecastday?.[0]?.day?.daily_chance_of_snow}%`,
+        image: Snow,
+      },
+      {
+        title: "VISIBILITY",
+        titleIcon: faEye,
+        value: `${currentDayData?.forecast?.forecastday?.[0]?.day?.avgvis_km}Km`,
+        image: Visibility,
+      },
+      {
+        title: "PRESSURE",
+        titleIcon: faInfo,
+        value: `${currentDayData?.current?.pressure_in}`,
+        image: Pressure,
+      },
+      {
+        title: "UV INDEX",
+        titleIcon: faSun,
+        value: `${currentDayData?.forecast?.forecastday?.[0]?.day?.uv}`,
+        image: UV,
+      },
+      {
+        title: "HUMIDITY",
+        titleIcon: faSun,
+        value: `${currentDayData?.current.humidity}`,
+        image: Humidity,
+      },
+    ];
+    setWeatherCardData(data);
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [searchQuery]);
+
+  useEffect(() => {
+    currentDayData && updateWeatherCardData();
+  }, [currentDayData]);
 
   return (
     <div className="flex gap-6 h-full flex-col sm:flex-row">
@@ -77,7 +144,7 @@ const Layout = () => {
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
           placeholder="Enter location here..."
-          className="px-3 py-2 rounded-md outline-none w-[320px] self-end text-[#000] absolute sm:relative top-6 z-20"
+          className="px-3 py-2 rounded-md outline-none w-[320px] self-end text-[#000] dark:text-[#fff] absolute sm:relative sm:top-0 top-6 z-20"
         />
         {currentDayData ? (
           <React.Fragment>
@@ -85,63 +152,17 @@ const Layout = () => {
               forecast={currentDayData?.forecast?.forecastday?.[0]?.hour}
             />
             <div className="flex gap-6 flex-wrap">
-              <WeatherCard
-                title="SUNRISE"
-                titleIcon={faSun}
-                value={
-                  currentDayData?.forecast?.forecastday?.[0]?.astro?.sunrise
-                }
-                image={Sunrise}
-                subtext={`Sunset: ${currentDayData?.forecast?.forecastday?.[0]?.astro?.sunset}`}
-              />
-              <WeatherCard
-                title="FEELS LIKE"
-                titleIcon={faTemperature2}
-                value={<div>{currentDayData?.current.feelslike_c}&deg;C</div>}
-                image={Temperature}
-              />
-              <WeatherCard
-                title="WIND"
-                titleIcon={faWind}
-                value={`${currentDayData?.forecast?.forecastday?.[0]?.day?.maxwind_kph} km/h`}
-                image={Wind}
-              />
-              <WeatherCard
-                title="RAINFALL"
-                titleIcon={faCloudRain}
-                value={`${currentDayData?.forecast?.forecastday?.[0]?.day?.daily_chance_of_rain}%`}
-                image={RainFall}
-              />
-              <WeatherCard
-                title="SNOW"
-                titleIcon={faSnowflake}
-                value={`${currentDayData?.forecast?.forecastday?.[0]?.day?.daily_chance_of_snow}%`}
-                image={Snow}
-              />
-              <WeatherCard
-                title="VISIBILITY"
-                titleIcon={faEye}
-                value={`${currentDayData?.forecast?.forecastday?.[0]?.day?.avgvis_km}Km`}
-                image={Visibility}
-              />
-              <WeatherCard
-                title="PRESSURE"
-                titleIcon={faInfo}
-                value={`${currentDayData?.current?.pressure_in}`}
-                image={Pressure}
-              />
-              <WeatherCard
-                title="UV INDEX"
-                titleIcon={faSun}
-                value={`${currentDayData?.forecast?.forecastday?.[0]?.day?.uv}`}
-                image={UV}
-              />
-              <WeatherCard
-                title="HUMIDITY"
-                titleIcon={faSun}
-                value={`${currentDayData?.current.humidity}`}
-                image={Humidity}
-              />
+              {!!weatherCardData &&
+                weatherCardData?.map((cardData: any, index: number) => (
+                  <WeatherCard
+                    title={cardData?.title}
+                    titleIcon={cardData?.titleIcon}
+                    value={cardData?.value}
+                    image={cardData?.image}
+                    subtext={cardData?.subtext}
+                    key={index}
+                  />
+                ))}
             </div>
           </React.Fragment>
         ) : (
